@@ -1,1 +1,1 @@
-# CS522-TeamProject
+# CS522 - Machine Learning - TeamProject
