@@ -1,5 +1,5 @@
 # Datasets
-- URL: https://www.kaggle.com/ashishjangra27/face-mask-12k-images-datase
+- URL: https://www.kaggle.com/ashishjangra27/face-mask-12k-images-dataset
   
 ## Context
 This dataset is used for Face Mask Detection Classification with images. The dataset consists of almost 12K images which are almost 328.92MB in size.
