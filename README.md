@@ -1,6 +1,8 @@
 # CS522 - Machine Learning - Team Project
 - Team Members: 
-- URL: https://web.eecs.utk.edu/~hqi/cosc522/
+- Class Website: https://web.eecs.utk.edu/~hqi/cosc522/
+- Project Google Drive: https://drive.google.com/drive/folders/1Cl_dF2ptlYzd_hIid7rArQXoGCKIbNTS
+- GitHub Repo: https://github.com/andreicozma1/CS522-TeamProject
 
 ## Objective
 The objective of the final project is to integrate various machine learning techniques to achieve the best performance. Final project is a group effort. Each group can have 4-5 members. You are required to apply ALL techniques learned in this semester.
@@ -46,11 +48,11 @@ To be more specific, you need to at least go through the following steps:
 - Data normalization
 - Dimensionality reduction
 - Classification/Regression with the following
-- MPP (case 1, 2, and 3)
-- kNN with different k's
-- BPNN
-- Decision tree
-- SVM
-- Clustering (kmeans, wta)
+	- MPP (case 1, 2, and 3)
+	- kNN with different k's
+	- BPNN
+	- Decision tree
+	- SVM
+	- Clustering (kmeans, wta)
 - Classifier fusion
 - Evaluation (use n-fold cross validation to generate confusion matrix and ROC curve if applicable).
