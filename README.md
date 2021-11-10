@@ -1,5 +1,5 @@
 # CS522 - Machine Learning - Team Project
-- Team Members: 
+- Team Members: Isaac Sikkema, Nan Tang, Sabrullah Deniz, Hunter Price, Andrei Cozma
 - Class Website: https://web.eecs.utk.edu/~hqi/cosc522/
 - Project Google Drive: https://drive.google.com/drive/folders/1Cl_dF2ptlYzd_hIid7rArQXoGCKIbNTS
 - GitHub Repo: https://github.com/andreicozma1/CS522-TeamProject
