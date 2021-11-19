@@ -3,6 +3,7 @@ from typing import Tuple
 from PIL import Image, ImageOps
 import PIL
 import numpy as np
+import pickle
 
 
 def get_dataset_fn(dataset_dir: str, type: str) -> Tuple[np.array, np.array]:
@@ -57,9 +58,13 @@ def to_categorical(y) -> np.array:
     return Y
 
 # helper functions to resize images
-def resize_img(x:np.array, size: tuple):
+
+
+def resize_img(x: np.array, size: tuple):
     return np.asarray(Image.fromarray(x).resize(size, resample=PIL.Image.LANCZOS)).astype(np.uint8)
-def resize_dataset(X, size:tuple):
+
+
+def resize_dataset(X, size: tuple):
     X_new = np.zeros((len(X), *size))
     size = size[:-1] if len(size) == 3 else size
     for i, x in enumerate(X):
@@ -67,22 +72,40 @@ def resize_dataset(X, size:tuple):
     return X_new
 
 # helper functions to turn images to grayscale
+
+
 def img2grayscale(img: np.array):
-    return np.asarray(ImageOps.grayscale(Image.fromarray(img.astype(np.uint8),'RGB'))).astype(np.uint8)
+    return np.asarray(ImageOps.grayscale(Image.fromarray(img.astype(np.uint8), 'RGB'))).astype(np.uint8)
+
+
 def dataset2grayscale(X):
     X_new = []
-    for  x in X:
+    for x in X:
         X_new.append(img2grayscale(x))
     return X_new
 
 # min-max scale images
-def min_max_scale_img(x:np.array):
+
+
+def min_max_scale_img(x: np.array):
     x = x.astype("float64")
     x /= 255
     return x
+
+
 def min_max_scale_dataset(X):
     X_new = []
     for x in X:
         X_new.append(min_max_scale_img(x))
     return X_new
-    
+
+
+def get_conv_dataset(dataset, fn):
+    if os.path.exists(fn):
+        with open(fn, 'rb') as f:
+            conv = pickle.load(f)
+    else:
+        conv = np.array([model.feedforward(x) for x in dataset])
+        with open(fn, 'wb') as f:
+            pickle.dump(conv, f)
+    return conv
