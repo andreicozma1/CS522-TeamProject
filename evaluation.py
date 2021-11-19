@@ -1,4 +1,5 @@
 import numpy as np
+import matplotlib.pyplot as plt
 
 # example usage: get_confusion_matrix(y, y_pred, np.unique(y))
 def get_confusion_matrix(y, y_model, label_order):
@@ -34,3 +35,34 @@ def get_confusion_matrix(y, y_model, label_order):
             res = np.where(label_order==i_l)[0][0]
             mat[i,res] = c
     return np.array(mat)
+
+
+def plot_confusion_matrix(mat, labels, title, filename:str=None):
+    """
+    plot a pretty confusion matrix given the matrix, the labels,
+    the title of the plot, and optionally the filename if you want to save it
+    """
+    plt.title(title, fontsize=14, fontweight='bold')
+    plt.imshow(mat, cmap='Blues', interpolation='nearest')
+    plt.xlabel("Predicted Labels")
+    plt.ylabel("Actual Labels")
+    ax = plt.gca()
+
+    # plot the corresponding number in the confusion matrix
+    for i in range(mat.shape[0]):
+        for j in range(mat.shape[1]):
+            ax.text(j,i,str(int(mat[i,j])),
+                    fontsize=14,
+                    color='black',
+                    bbox={'facecolor':'white','alpha':1,'edgecolor':'black','pad':1.5},
+                    ha='center', va='center')
+    # remove ticks and fix layout
+    ax.xaxis.tick_top()
+    ax.axes.xaxis.set_ticks(labels)
+    ax.axes.yaxis.set_ticks(labels)
+    plt.colorbar()
+    plt.tight_layout()
+
+    # save to file it desired
+    if filename is not None:
+        plt.savefig(filename, dpi=500)
