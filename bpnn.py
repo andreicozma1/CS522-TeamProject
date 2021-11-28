@@ -68,7 +68,7 @@ class BPNN:
 
         if self.verbose:
             print(f' - Training Data Len: {n}')
-            print(f' - Test Data Len: {n}')
+            print(f' - Validation Data Len: {n_test}')
             print("# Epochs:")
 
         evaluation_scores = [0]
