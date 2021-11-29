@@ -66,3 +66,5 @@ def plot_confusion_matrix(mat, labels, title, filename:str=None):
     # save to file it desired
     if filename is not None:
         plt.savefig(filename, dpi=500)
+    
+    plt.show()

@@ -65,10 +65,9 @@ class MPPCase3:
     def fit(self, X: np.array, y: np.array):
         X = np.reshape(np.copy(X), (X.shape[0], -1))
         for k in range(self.k):
-            self.vars[k] = np.cov(X[y == k].T, dtype=np.float64)
+            self.vars[k] = np.cov(X[y == k].T)
             self.inv_vars[k] = np.linalg.inv(self.vars[k])
-            # Scaling because the det is 0 otherwise
-            self.det_vars[k] = np.linalg.det(self.vars[k] * 3.0)
+            self.det_vars[k] = np.linalg.det(self.vars[k])
             self.means[k] = np.mean(X[y == k], axis=0)
 
     def predict(self, X: np.array) -> np.array:
