@@ -27,7 +27,7 @@ def format_percentage(num, deno):
 
 class Dataset:
 
-    def __init__(self, dataset_dir = None):
+    def __init__(self, dataset_dir=None):
         self.dataset_dir = dataset_dir
         self.train = None
         self.validation = None
@@ -58,8 +58,10 @@ class Dataset:
         no_mask_dir = os.path.join(base_dir, "WithoutMask")
         mask_dir = os.path.join(base_dir, "WithMask")
         # get filenames
-        no_mask_fn = list(map(lambda fn: os.path.join(no_mask_dir, fn), os.listdir(no_mask_dir)))
-        mask_fn = list(map(lambda fn: os.path.join(mask_dir, fn), os.listdir(mask_dir)))
+        no_mask_fn = list(map(lambda fn: os.path.join(
+            no_mask_dir, fn), os.listdir(no_mask_dir)))
+        mask_fn = list(map(lambda fn: os.path.join(
+            mask_dir, fn), os.listdir(mask_dir)))
         # create X with associated y labels
         y = np.hstack((np.zeros(len(no_mask_fn)), np.ones(len(mask_fn))))
         X = np.hstack((np.array(no_mask_fn), np.array(mask_fn)))
@@ -106,7 +108,8 @@ class Dataset:
         print("\t- Loading Datasets...")
         # get dataset of filenames and labels
         X_train_fn, y_train = self.get_dataset_fn(self.dataset_dir, "train")
-        X_validation_fn, y_validation = self.get_dataset_fn(self.dataset_dir, "validation")
+        X_validation_fn, y_validation = self.get_dataset_fn(
+            self.dataset_dir, "validation")
         X_test_fn, y_test = self.get_dataset_fn(self.dataset_dir, "test")
 
         # one hot encode target labels
@@ -131,7 +134,8 @@ class Dataset:
     def transform(self, x_routine, overwrite=False):
         # Keep track of the transformations performed and skip transforming if already done
         if x_routine.__name__ in self.transforms and not overwrite:
-            raise ValueError(f"Dataset has already been transformed with {x_routine}!\nRe-run with overwrite=True to overwrite.")
+            raise ValueError(
+                f"Dataset has already been transformed with {x_routine}!\nRe-run with overwrite=True to overwrite.")
 
         print(f"# Performing Feature Set Transformation: {x_routine.__name__}")
         sets = [self.train, self.validation, self.test]
@@ -163,7 +167,8 @@ class Dataset:
 
         # If the file already exists output an error and prompt the user to use the overwrite argument
         if os.path.isfile(fullpath) and not overwrite:
-            raise FileExistsError(f"File already exists: {fullpath}! Re-run with overwrite=True to overwrite.")
+            raise FileExistsError(
+                f"File already exists: {fullpath}! Re-run with overwrite=True to overwrite.")
 
         print("# Saving to Gzip Pickle File:", fullpath)
         with gzip.open(fullpath, 'wb') as f:
@@ -174,7 +179,7 @@ class Dataset:
     @staticmethod
     def load_gzip(dir_path, file_name):
         fullpath = os.path.join(dir_path, file_name)
-        print("# Loading from Gzip Pickle File:", fullpath)
+        # print("# Loading from Gzip Pickle File:", fullpath)
 
         with gzip.open(fullpath, 'rb') as f:
             new = pickle.load(f)
