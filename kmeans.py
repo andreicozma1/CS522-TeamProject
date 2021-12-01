@@ -20,12 +20,14 @@ def kmeans_image_compress(image: np.array, k: int, max_error: float = 0.0) -> (n
 
     return y, means
 
+
 def kmeans_image_colorize(image: np.array, means: np.array) -> np.array:
     new_image = np.zeros((image.shape[0], 3))
     for i, v in enumerate(means):
         new_image[image == i] = v
-    
+
     return new_image
+
 
 def kmeans_classify(images: np.array, k: int, max_error: float = 0.0) -> np.array:
     shape = images.shape
@@ -49,3 +51,12 @@ def kmeans_classify(images: np.array, k: int, max_error: float = 0.0) -> np.arra
             break
 
     return y, means
+
+
+def get_ideal(images: np.array, y: np.array) -> (np.array, np.array):
+    means = np.array([np.mean(images[y == i], axis=0) for i in range(2)])
+    diff = np.array(
+        [np.linalg.norm(images - mean, axis=1) for mean in means])
+    y_new = np.argmin(diff, axis=0)
+
+    return y_new, means
