@@ -1,8 +1,7 @@
 import numpy as np
 
 
-def kmeans_image_compress(image: np.array, k: int, max_error: float = 0.0) -> np.array:
-    shape = image.shape
+def kmeans_image_compress(image: np.array, k: int, max_error: float = 0.0) -> (np.array, np.array):
     pixels = np.reshape(np.copy(image), (-1, 3))
     means = pixels[np.random.randint(0, len(pixels), k), :]
     y = np.zeros(len(pixels))
@@ -19,11 +18,14 @@ def kmeans_image_compress(image: np.array, k: int, max_error: float = 0.0) -> np
         if count / len(y) <= max_error:
             break
 
+    return y, means
+
+def kmeans_image_colorize(image: np.array, means: np.array) -> np.array:
+    new_image = np.zeros((image.shape[0], 3))
     for i, v in enumerate(means):
-        pixels[y == i] = v
-
-    return pixels.reshape(shape)
-
+        new_image[image == i] = v
+    
+    return new_image
 
 def kmeans_classify(images: np.array, k: int, max_error: float = 0.0) -> np.array:
     shape = images.shape
@@ -46,4 +48,4 @@ def kmeans_classify(images: np.array, k: int, max_error: float = 0.0) -> np.arra
         if count / len(y) <= max_error:
             break
 
-    return y
+    return y, means
