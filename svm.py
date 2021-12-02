@@ -5,7 +5,8 @@ https://stackoverflow.com/questions/62242579/implementing-svm-rbf
 Code from:
 ftp://ftp.ai.mit.edu/pub/users/tlp/projects/svm/svm-smo/smo.pdf
 """
-import numpy as np
+# import numpy as np
+import cupy as np
 
 
 class SVM:
