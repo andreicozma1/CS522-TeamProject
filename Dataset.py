@@ -181,6 +181,10 @@ class Dataset:
         fullpath = os.path.join(dir_path, file_name)
         # print("# Loading from Gzip Pickle File:", fullpath)
 
+        if not os.path.isfile(fullpath):
+            raise FileNotFoundError(
+                f"File not found: {fullpath}")
+
         with gzip.open(fullpath, 'rb') as f:
             new = pickle.load(f)
             return new
