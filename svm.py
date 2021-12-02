@@ -5,6 +5,8 @@ https://stackoverflow.com/questions/62242579/implementing-svm-rbf
 Code from:
 ftp://ftp.ai.mit.edu/pub/users/tlp/projects/svm/svm-smo/smo.pdf
 """
+import numba
+from numba import njit
 import numpy as np
 # import cupy as np
 
@@ -13,17 +15,31 @@ class SVM:
     def __init__(self, kernel='linear', C=10000.0, max_iter=100000, degree=3, gamma=1, tolerance=0.001, epsilon=0.001):
         self.is_linear = True if kernel == 'linear' else False
 
-        self.K = {'poly': lambda x, y: np.dot(x, y.T) ** degree,
-                  'rbf': lambda x, y: np.exp(-gamma * np.linalg.norm(y-x) ** 2),
-                  'linear': lambda x, y: np.dot(x, y.T)}[kernel]
+        @njit(parallel=True, fastmath=True)
+        def rbf(x,y):
+            return np.exp(-gamma * np.linalg.norm(y-x) ** 2)
+
+        @njit(parallel=True, fastmath=True)
+        def poly(x,y):
+            return np.dot(x, y.T) ** degree
+
+        @njit(parallel=True, fastmath=True)
+        def linear(x,y):
+            return np.dot(x, y.T)
+        self.K = {'poly': poly,
+                  'rbf': rbf,
+                  'linear': linear}[kernel]
 
         self.C = C
         self.max_iter = max_iter
         self.tolerance = tolerance
         self.epsilon = epsilon
-        self.w = None
-        self.b = None
-        self.N = None
+        self.alphas:np.array = None  # lagrangian multipliers
+        self._X:np.array = None
+        self._y:np.array = None
+        self.w:np.array = None
+        self.b:np.int = 0
+        self.N:np.int = 0
 
         if self.is_linear:
             self.learned_func = self.learned_func_linear
@@ -51,25 +67,32 @@ class SVM:
         while num_changed > 0 or examine_all:
             print('starting epoch #',m)
             num_changed = 0
+
             if examine_all:
+                print('examine all')
                 for k in range(self.N):
                     num_changed += self.examine_example(k)
+                    print(f'k={k}, num_changed={k}')
             else:
+                print('examine all else')
+
                 for k in range(self.N):
                     if self.alphas[k] != 0 and self.alphas[k] != self.C:
                         num_changed += self.examine_example(k)
+                    print(f'k={k}, num_changed={k}')
+
             if examine_all == 1:
                 examine_all = 0
             elif num_changed == 0:
                 examine_all = 1
-            print('finished epoch #',m)
+            print('finished epoch #', m)
             if Te_X is not None:
-                print('Test error rate:',self.error_rate(Te_X,Te_y))
+                print('Test error rate:', self.error_rate(Te_X, Te_y))
 
         print('finished training')
 
-
     def examine_example(self, i1):
+        print('examine example ',i1)
         y1 = self._y[i1]
         alph1 = self.alphas[i1]
 
@@ -80,13 +103,18 @@ class SVM:
 
         r1 = y1 * E1
         if (r1 < -self.tolerance and alph1 < self.C) or (r1 > self.tolerance and alph1 > self.C):
+            print('starting tests')
             # try to find i2 in 3 ways return 1 if any are successful
             if self.try_E1_E2(i1, E1):
                 return 1
-            elif self.try_non_bound_examples(i1):
+            print('tried E1-E2')
+            if self.try_non_bound_examples(i1):
                 return 1
-            elif self.try_all_examples(i1):
+            print('tried E1-E2')
+
+            if self.try_all_examples(i1):
                 return 1
+            print('tried non bounded')
         return 0
 
     def try_E1_E2(self, i1, E1):
@@ -120,8 +148,9 @@ class SVM:
         k0 = np.random.randint(0, self.N)
         for k in range(k0, k0 + self.N):
             i2 = k % self.N
-            if self.take_step(i1, i2):
-                return 1
+            if not (self.alphas[i2] > 0 and self.alphas[i2] < self.C):
+                if self.take_step(i1, i2):
+                    return 1
 
     def take_step(self, i1, i2):
         # print('Takestep Start: {:%H:%M:%S.%f}'.format(datetime.datetime.now()))
@@ -268,16 +297,19 @@ class SVM:
         self.E[i1] = 0
         self.E[i2] = 0
 
+    @njit(parallel=True, fastmath=True)
     def learned_func_linear(self,k):
         return self.w.dot(self._X[k]) - self.b
 
-    def learned_func_nonlinear(self,k):
-        s = 0
-        for i in range(self.N):
+    # @njit(parallel=True, fastmath=True)
+    def learned_func_nonlinear(self, k: np.int) -> np.float:
+        s:np.float = 0
+        for i in np.arange(0, self.N):
             if self.alphas[i] > 0:
-                s += self.alphas[i]*self._y[i]*self.K(self._X[i],self._X[k])
-
-        return s - self.b
+                s += self.alphas[i]*self._y[i]*self.K(self._X[i], self._X[k])
+        # s -= self.b
+        s = np.subtract(s, self.b)
+        return s
 
     def predict_func_linear(self,X):
         return X.dot(self.w) - self.b
