@@ -46,8 +46,8 @@ class MPPCase2:
 
     def predict(self, X: np.array) -> np.array:
         g = np.array([
-            [-0.5 * (x - self.means[k]).T.dot(self.inv_var).dot(
-                x - self.means[k]) + np.log(self.priors[k]) for x in X]
+            [-0.5 * (x - self.means[k]).T.dot(self.inv_var).dot(x - self.means[k])
+             + np.log(self.priors[k]) for x in X]
             for k in range(self.k)])
 
         return np.argmax(g, axis=0)
@@ -67,13 +67,13 @@ class MPPCase3:
         for k in range(self.k):
             self.vars[k] = np.cov(X[y == k].T)
             self.inv_vars[k] = np.linalg.inv(self.vars[k])
-            self.det_vars[k] = np.linalg.det(self.vars[k])
+            _, self.det_vars[k] = np.linalg.slogdet(self.vars[k])
             self.means[k] = np.mean(X[y == k], axis=0)
 
     def predict(self, X: np.array) -> np.array:
         g = np.array([
             [-0.5 * (x - self.means[k]).T.dot(self.inv_vars[k]).dot(x - self.means[k])
-             - 0.5 * np.log(self.det_vars[k]) + np.log(self.priors[k]) for x in X]
+             - 0.5 * self.det_vars[k] + np.log(self.priors[k]) for x in X]
             for k in range(self.k)])
 
         return np.argmax(g, axis=0)
