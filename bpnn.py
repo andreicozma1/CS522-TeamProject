@@ -1,6 +1,7 @@
 import random
 import numpy as np
 from time import time
+from tqdm.notebook import tqdm
 
 
 def sigmoid(z):
@@ -52,7 +53,7 @@ class BPNN:
             a = sigmoid(np.dot(w, a) + b)
         return a
 
-    def train(self, training_data, max_epochs, batch_size, learning_rate, evaluation_data, evaluation_treshold=0.07):
+    def train(self, training_data, max_epochs, batch_size, learning_rate, evaluation_data, evaluation_treshold=None):
         """
         Train the neural network using mini-batch stochastic gradient descent.
         """
