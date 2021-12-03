@@ -68,3 +68,21 @@ def plot_confusion_matrix(mat, labels, title, filename:str=None):
         plt.savefig(filename, dpi=500)
     
     plt.show()
+
+def accuracy_score(y, y_model):
+    """
+    Return accuracy score.
+    You are supposed to return both overall accuracy and classwise accuracy.
+    The following code only returns overall accuracy
+    """
+    assert len(y) == len(y_model)
+
+    classn = len(np.unique(y))  # number of different classes
+    correct_all = y == y_model  # all correctly classified samples
+    acc_overall = np.sum(correct_all) / len(y)
+    acc_i = []  # this list stores classwise accuracy
+    for i in range(classn):
+        mask = np.ma.masked_where(y == i, y).mask  # create a mask of the current class
+        acc_i.append(np.sum(correct_all, where=mask) / np.sum(mask))  # only sum correct values that are in the mask
+
+    return acc_i, acc_overall
