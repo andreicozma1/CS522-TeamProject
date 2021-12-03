@@ -1,7 +1,7 @@
 import random
 import cupy as cp
 from time import time
-from tqdm import tqdm
+from tqdm.notebook import tqdm
 
 
 def sigmoid(z):
