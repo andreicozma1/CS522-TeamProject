@@ -103,18 +103,14 @@ class SVM:
 
         r1 = y1 * E1
         if (r1 < -self.tolerance and alph1 < self.C) or (r1 > self.tolerance and alph1 > self.C):
-            print('starting tests')
             # try to find i2 in 3 ways return 1 if any are successful
             if self.try_E1_E2(i1, E1):
                 return 1
-            print('tried E1-E2')
             if self.try_non_bound_examples(i1):
                 return 1
-            print('tried E1-E2')
 
             if self.try_all_examples(i1):
                 return 1
-            print('tried non bounded')
         return 0
 
     def try_E1_E2(self, i1, E1):
