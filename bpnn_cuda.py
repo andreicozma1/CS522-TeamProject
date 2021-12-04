@@ -1,7 +1,7 @@
 import random
 import cupy as cp
 from time import time
-from tqdm.notebook import tqdm
+from tqdm import tqdm
 
 
 def sigmoid(z):
@@ -35,6 +35,7 @@ class BPNN:
         self.sizes = sizes
         # Initialize weights and biases using random Gaussian distribution
         # Starting from the first hidden layer initialize weights in an array of shape [len_prev_layer, len_curr_layer]
+
         if random_init:
             self.weights = [cp.random.randn(y, x)
                             for x, y in zip(sizes[:-1], sizes[1:])]
@@ -43,7 +44,8 @@ class BPNN:
                 cp.random.uniform(-1, 1, size=(y, x)) for x, y in zip(sizes[:-1], sizes[1:])]
 
         # Initialize biases except for the input layer
-        self.biases = [cp.random.randn(y, 1) for y in sizes[1:]]
+        self.biases = [cp.random.randn(y, 1)
+                       for y in sizes[1:]]
 
     def feedforward(self, a):
         """

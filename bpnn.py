@@ -1,7 +1,7 @@
 import random
 import numpy as np
 from time import time
-from tqdm.notebook import tqdm
+from tqdm import tqdm
 
 
 def sigmoid(z):
@@ -77,7 +77,7 @@ class BPNN:
         evaluation_scores = [0]
         evaluation_deltas = []
         t0 = time()
-        for j in range(max_epochs):
+        for j in tqdm(range(max_epochs)):
             # Shuffle the training data
             random.shuffle(training_data)
 
