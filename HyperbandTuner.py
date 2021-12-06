@@ -5,53 +5,6 @@ import time
 from tqdm import tqdm
 
 
-def convert_categories(y_cat):
-    desired = cp.array([0 if y[0] == 1 else 1 for y in y_cat])
-    return desired
-
-
-def get_data():
-    d = Dataset.load_gzip(os.path.join(
-        "datasets", "face_mask_pickled"), "dataset_gray_conv_test_1.pkl.gzip")
-
-    ndimen = d.train.X.shape[1]
-
-    # Structure Training Data for BPNN
-    training_inputs = [cp.reshape(cp.asarray(x), (ndimen, 1))
-                       for x in d.train.X]
-    training_results = [cp.asarray(y.reshape(-1, 1)) for y in d.train.y]
-
-    training_data = zip(training_inputs, training_results)
-    # Structure Validation Data for BPNN
-    validation_inputs = [cp.reshape(cp.asarray(x), (ndimen, 1))
-                         for x in d.validation.X]
-    validation_data = zip(
-        validation_inputs, convert_categories(d.validation.y))
-    # Structure Testing Data for BPNN
-    testing_inputs = [cp.reshape(cp.asarray(x), (ndimen, 1)) for x in d.test.X]
-    testing_data = zip(testing_inputs, convert_categories(d.test.y))
-
-    return training_data, validation_data, testing_data, ndimen
-
-
-# model_BPNN = BPNN(init_nc, verbose=True)
-# final_score, eval_scores, eval_scores_deltas, conv_time = model_BPNN.train(training_data,
-#                                                                            max_epochs=max_epochs,
-#                                                                            batch_size=init_b,
-#                                                                            learning_rate=init_lr,
-#                                                                            evaluation_data=validation_data)
-
-def run_hyperband_tuning():
-    training_data, validation_data, testing_data, ndimen = get_data()
-    print(f"Input Dimension: {ndimen}")
-
-    ht = HyperbandTuner(BPNN, num_trials=1, max_epochs=100, eta=3)
-
-    ht.tune([ndimen, 160, 2], 10, 0.83)
-
-    # print(ht.get_best_hyperparameters())
-
-
 class HyperbandTuner:
 
     def __init__(self, model, num_trials=1, max_epochs=30, eta=3):
@@ -159,7 +112,7 @@ class HyperbandTuner:
                 print(f" - Hypers: {hyper}")
 
                 # Generate the training, validation and testing data
-                tr, va, te, nnodes = get_data()
+                tr, va, te, nnodes = BPNN.get_data()
 
                 # Run the trials
                 final_score, epoch_scores, conv_time = self.run_trials(
@@ -176,6 +129,3 @@ class HyperbandTuner:
 
             # Update the number of epochs
             epochs = int(epochs * self.eta)
-
-
-run_hyperband_tuning()

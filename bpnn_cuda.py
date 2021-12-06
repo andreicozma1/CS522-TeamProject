@@ -2,6 +2,8 @@ import random
 import cupy as cp
 from time import time
 from tqdm import tqdm
+from Dataset import Dataset
+import os
 
 
 def sigmoid(z):
@@ -16,6 +18,11 @@ def sigmoid_prime(z):
     Derivative of sigmoid function
     """
     return sigmoid(z) * (1 - sigmoid(z))
+
+
+def convert_categories(y_cat):
+    desired = cp.array([0 if y[0] == 1 else 1 for y in y_cat])
+    return desired
 
 
 class BPNN:
@@ -197,3 +204,28 @@ class BPNN:
         for the output activations.
         """
         return (output_activations - y)
+
+    @staticmethod
+    def get_data():
+        d = Dataset.load_gzip(os.path.join(
+            "datasets", "face_mask_pickled"), "dataset_gray_conv_test_1.pkl.gzip")
+
+        ndimen = d.train.X.shape[1]
+
+        # Structure Training Data for BPNN
+        training_inputs = [cp.reshape(cp.asarray(x), (ndimen, 1))
+                           for x in d.train.X]
+        training_results = [cp.asarray(y.reshape(-1, 1)) for y in d.train.y]
+
+        training_data = zip(training_inputs, training_results)
+        # Structure Validation Data for BPNN
+        validation_inputs = [cp.reshape(cp.asarray(x), (ndimen, 1))
+                             for x in d.validation.X]
+        validation_data = zip(
+            validation_inputs, convert_categories(d.validation.y))
+        # Structure Testing Data for BPNN
+        testing_inputs = [cp.reshape(cp.asarray(x), (ndimen, 1))
+                          for x in d.test.X]
+        testing_data = zip(testing_inputs, convert_categories(d.test.y))
+
+        return training_data, validation_data, testing_data, ndimen
