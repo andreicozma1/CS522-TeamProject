@@ -86,7 +86,10 @@ class BPNN:
         evaluation_scores = [0]
         evaluation_deltas = []
         t0 = time()
-        for j in tqdm(range(max_epochs)):
+
+        iter_epochs = tqdm(range(max_epochs), leave=False)
+
+        for j in iter_epochs:
             # Shuffle the training data
             random.shuffle(training_data)
 
@@ -117,6 +120,9 @@ class BPNN:
                       f"delta_avg: {evaluation_deltas_avg})")
 
             evaluation_scores.append(evaluation_score)
+
+            iter_epochs.set_description(
+                f"Accuracy: {evaluation_score} ({evaluation_correct}/{n_test})")
 
             if evaluation_treshold is not None and evaluation_deltas_avg < evaluation_treshold:
                 break
