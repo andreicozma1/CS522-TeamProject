@@ -135,21 +135,15 @@ class Dataset:
         # Keep track of the transformations performed and skip transforming if already done
         if x_routine.__name__ in self.transforms and not overwrite:
             raise ValueError(
-                f"Dataset has already been transformed with {x_routine}!\nRe-run with overwrite=True to overwrite.")
+                f"Dataset has already been transformed with {x_routine}!\nRe-run transform(...) with overwrite=True to overwrite.")
 
         print(f"# Performing Feature Set Transformation: {x_routine.__name__}")
         sets = [self.train, self.validation, self.test]
         for i, data in enumerate(sets):
-            print(f"\t- {i + 1}/{len(sets)}")
             data.X = x_routine(data.X)
 
         self.transforms.append(x_routine.__name__)
-        # print("\t- (1/3) Transforming Train Set...", flush=True)
-        # self.train.X = x_routine(self.train.X)
-        # print("\t- (2/3) Transforming Train Set...", flush=True)
-        # self.validation.X = x_routine(self.validation.X)
-        # print("\t- (3/3) Transforming Train Set...", flush=True)
-        # self.test.X = x_routine(self.test.X)
+        print("\t- Feature Set Transformation Complete!")
 
     def copy_transform(self, x_routine):
         copy = deepcopy(self)
