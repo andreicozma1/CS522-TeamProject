@@ -46,6 +46,37 @@ class NaiveBayesFuser:
 
         return np.transpose(self.fused_hypercube, axes=axes)
 
+    def plot_3d_cube(self):
+        import matplotlib.pyplot as plt
+
+        cube = self.get_readable_fused_hypercube()
+
+        maxval = np.max(cube)
+        colors = np.zeros(cube.shape + (4,))
+        for i in np.ndindex(cube.shape):
+            whiteness = 1.0 - cube[i] / maxval
+            colors[i][0] = whiteness
+            colors[i][1] = whiteness
+            colors[i][2] = 1.0
+            colors[i][3] = 0.5
+
+        voxels = cube
+
+        fig = plt.figure()
+        ax = fig.add_subplot(111, projection='3d')
+        ax.voxels(voxels, facecolors=colors, edgecolor='k')
+
+        ax.axes.xaxis.set_ticks([0, 1])
+        ax.axes.yaxis.set_ticks([0, 1])
+        ax.axes.zaxis.set_ticks([0, 1])
+        ax.set_xlabel("C0 Predicted Labels")
+        ax.set_ylabel("C1 Predicted Labels")
+        ax.set_zlabel("Actual Labels")
+        
+        plt.title("Fused HyperMatrix", fontsize=14, fontweight='bold')
+        plt.tight_layout()
+        plt.show()
+
 
 class BKS:
     def __init__(self, y_true: np.array):
