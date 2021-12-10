@@ -167,6 +167,16 @@ class Activation(Layer):
 
 
 # ----------------------------------------------------
+# this layer allows a user to define their own layer with a custom function passed through the constructor
+
+class Lambda(Layer):
+    def __init__(self, func, name="lambda"):
+        super().__init__(f'{name} (Lambda)')
+        self.func = func
+
+    def feedforward(self, x:np.array):
+        return self.func(x)
+# ----------------------------------------------------
 
 class Flatten(Layer):
     def __init__(self, name="flatten"):
