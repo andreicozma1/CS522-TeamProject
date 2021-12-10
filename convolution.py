@@ -21,8 +21,8 @@ class Conv(Layer):
         self.strides = strides
 
     def feedforward(self, img):
-        assert len(img.shape) == 3 and img.shape[2] != len(self.kernel.shape), "Number of kernel filters must be " \
-                                                                               "equal to number of dimensions "
+        if len(img.shape) == 3 and img.shape[2] != len(self.kernel.shape):
+            raise Exception("Number of kernel filters must be equal to number of dimesions")
 
         # Shape of Output Convolution
         xOutput = int(((img.shape[0] - self.kernel.shape[0] + 2 * self.padding) / self.strides) + 1)
@@ -87,7 +87,7 @@ class Pooling2D(Layer):
             raise Exception('Pooling mode not supported')
 
     def feedforward(self, img):
-        assert len(img.shape) != 2, 'Non 2D image given to 2D pool'
+        assert len(img.shape) == 2, 'Non 2D image given to 2D pool'
 
         # Pad img of a 2d image
         img = np.pad(img, self.padding, mode='constant')
