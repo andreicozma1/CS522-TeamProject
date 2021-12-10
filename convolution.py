@@ -20,8 +20,8 @@ class Conv(Layer):
         self.strides = strides
 
     def feedforward(self, img):
-        if len(img.shape) == 3 and img.shape[2] != len(self.kernel.shape):
-            raise Exception("Number of kernel filters must be equal to number of dimesions")
+        assert len(img.shape) == 3 and img.shape[2] != len(self.kernel.shape), "Number of kernel filters must be " \
+                                                                               "equal to number of dimensions "
 
         # Shape of Output Convolution
         xOutput = int(((img.shape[0] - self.kernel.shape[0] + 2 * self.padding) / self.strides) + 1)
@@ -30,15 +30,19 @@ class Conv(Layer):
 
         # Apply Equal Padding to All Sides
         if self.padding != 0:
+            # left and right padding
             z0 = np.zeros((self.padding, img.shape[1], img.shape[2]), dtype=img.dtype)
+            # top and bottom padding
             z1 = np.zeros((img.shape[0] + self.padding * 2, self.padding, img.shape[2]), dtype=img.dtype)
+            # surround the image with padding pixels
             imagePadded = np.concatenate((z1, np.concatenate((z0, img, z0), axis=0), z1), axis=1)
         else:
+            # if no padding just save the original image
             imagePadded = img
 
         # Iterate through image
         for y in range(img.shape[1]):
-            # Exit Convolution
+            # Exit Convolution if the kernel expands past the end of the image
             if y > img.shape[1] - self.kernel.shape[1]:
                 break
             # Only Convolve if y has gone down by the specified Strides
@@ -48,8 +52,10 @@ class Conv(Layer):
                 # Go to next row once kernel is out of bounds
                 if x > img.shape[0] - self.kernel.shape[0]:
                     break
+                # if a stride step, continue
                 if x % self.strides != 0:
                     continue
+                # catch error if index out of bounds
                 try:
                     # Only Convolve if x has moved by the specified Strides
                     output[x, y] = (self.kernel * imagePadded[x: x + self.kernel.shape[0],
@@ -79,18 +85,20 @@ class Pooling2D(Layer):
             raise Exception('Pooling mode not supported')
 
     def feedforward(self, img):
-        if len(img.shape) != 2:
-            raise Exception('Non 2D image given to 2D pool')
+        assert len(img.shape) != 2, 'Non 2D image given to 2D pool'
 
-        # Pad img
+        # Pad img of a 2d image
         img = np.pad(img, self.padding, mode='constant')
 
         # calculate windowed image parameters
+        # height of output img
         output_h = (img.shape[0] - self.pool_size) // self.stride + 1
+        # width of output img
         output_w = (img.shape[1] - self.pool_size) // self.stride + 1
+        # size of window to apply to image
         window_shape = (output_h, output_w, self.pool_size, self.pool_size)
+        # number of strides in each dimension
         window_strides = (self.stride * img.strides[0], self.stride * img.strides[1], img.strides[0], img.strides[1])
-
         # create a windowed view of the image
         windowed_img = np.lib.stride_tricks.as_strided(img, window_shape, window_strides)
 
@@ -119,21 +127,25 @@ class Pooling3D(Layer):
         if len(img.shape) != 3:
             raise Exception('Non 3D image given to 3D pool')
 
-        # Pad img
+        # Pad img in 3 dimensions
         if self.padding != 0:
             z0 = np.zeros((self.padding, img.shape[1], img.shape[2]), dtype=img.dtype)
             z1 = np.zeros((img.shape[0] + self.padding * 2, self.padding, img.shape[2]), dtype=img.dtype)
             img = np.concatenate((z1, np.concatenate((z0, img, z0), axis=0), z1), axis=1)
 
         # calculate windowed image parameters
+        # height of output img
         output_h = (img.shape[0] - self.pool_size) // self.stride + 1
+        # width of output img
         output_w = (img.shape[1] - self.pool_size) // self.stride + 1
+        # size of window to apply to image
         window_shape = (output_h, output_w, self.pool_size, self.pool_size, len(img.shape))
+        # create a windowed view of the image
         window_strides = (
             self.stride * img.strides[0], self.stride * img.strides[1], img.strides[0], img.strides[1], img.strides[2])
-
         # create a windowed view of the image
         windowed_img = np.lib.stride_tricks.as_strided(img, window_shape, window_strides)
+
         return self.mode(windowed_img)
 
 
@@ -182,19 +194,25 @@ class Debug(Layer):
 
 # ----------------------------------------------------
 
+# class to hold each layer
 class Sequential:
+
+    # constructor
     def __init__(self):
         self.layers = []
 
+    # prints out details of each layer
     def summary(self):
         print("Model: Sequential\n")
         print("#    Layer")
         for i, l in enumerate(self.layers):
             print(f"{i:<4} {l.name}")
 
+    # add a layer to the list
     def add(self, layer: Layer):
         self.layers.append(layer)
 
+    # feed an image through all layers
     def feedforward(self, x):
         for l in self.layers:
             x = l.feedforward(x)
