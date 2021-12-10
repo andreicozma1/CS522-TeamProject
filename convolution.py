@@ -11,6 +11,7 @@ class Layer:
 
 
 # ----------------------------------------------------
+# https://medium.com/analytics-vidhya/2d-convolution-using-python-numpy-43442ff5f381
 
 class Conv(Layer):
     def __init__(self, kernel: np.array, padding=0, strides=1, name="conv"):
@@ -66,6 +67,7 @@ class Conv(Layer):
 
 
 # ----------------------------------------------------
+# https://stackoverflow.com/questions/54962004/implement-max-mean-poolingwith-stride-with-numpy
 
 class Pooling2D(Layer):
     def __init__(self, pool_size=2, stride=2, padding=0, mode='max', name="pooling_2d"):
